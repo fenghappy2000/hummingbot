@@ -10,15 +10,15 @@
 @rem %CONDA_EXE% env create -f %ENV_FILE%
 
 @rem not first time
-@%CONDA_EXE% env update -f %ENV_FILE%
+%CONDA_EXE% env update -f %ENV_FILE%
 
 %CONDA_BIN%/Scripts/activate.bat hummingbot
 
-@rem %CONDA_EXE% develop .
+rem %CONDA_EXE% develop .
 
-@rem %CONDA_BIN%/Scripts/pip install objgraph
+rem %CONDA_BIN%/Scripts/pip install objgraph
 
-@rem %CONDA_BIN%/envs/hummingbot/bin/pre-commit install
+rem %CONDA_BIN%/envs/hummingbot/bin/pre-commit install
 
 @pause
 
