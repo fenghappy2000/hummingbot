@@ -1,0 +1,46 @@
+
+# 1) Install dependencies
+sudo apt-get update
+sudo apt-get install -y build-essential
+
+# 2) Install Miniconda3
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+sh Miniconda3-latest-Linux-x86_64.sh
+
+# 3) Reload .bashrc to register "conda" command
+exec bash
+
+# 4) Clone Hummingbot
+git clone https://github.com/hummingbot/hummingbot.git
+
+# 5) Install Hummingbot
+cd hummingbot && ./clean && ./install
+
+# 6) Activate environment and compile code
+conda activate hummingbot && ./compile
+
+# 7) Start Hummingbot
+bin/hummingbot.py
+
+
+----
+1. 先安装 Miniconda3-py38_4.8.2-Windows-x86_64.exe 并把conda的 Scripts 目录添加到 PATH 中: 
+    C:\Users\Administrator\miniconda3\Scripts
+2. 添加清华的 conda 源，速度快些:
+#显示目前conda的数据源有哪些
+conda config --show channels
+#添加数据源：例如, 添加清华anaconda镜像：
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+conda config --set show_channel_urls yes
+3. 在 hummingbot 目录中，创建 conda 环境: conda env create -f setup/environment-win64.yml
+4. 上面创建会比较久(git clone可能还会出错，出错的话再 update: conda env update -f setup/environment-win64.yml)
+5. 安装 conda-build: conda install conda-build
+6. 进入环境: activate hummingbot
+7. conda develop .
+8. pip install objgraph
+9. 清理一下本地目录: bash .\clean 
+a. 编译: bash .\compile
+b. 运行: bin/hummingbot.py
+
+
