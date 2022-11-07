@@ -37,25 +37,47 @@ class MyAvdaContext:
 	# logger
 	_logger: logging.Logger = logging.getLogger(__name__)
 
+	# private data for market
+	_MidPrice: float = 0
+	_LastPrice: float = 0
+	_BaseBalance: float = 0
+	_QuoteBalance: float = 0
+
+	# public funcs
 	def OnStart(self, timestamp: float):
 		self._logger.warning("fengjs: MyAvdaContext.OnStart() ts[{}]".format(timestamp))
 
 	def OnUpdate(self, timestamp: float):
-		# self._logger.warning("fengjs: MyAvdaContext.OnUpdate() ts[{}]".format(timestamp))
-		pass
+		line: str = "fengjs: MyAvdaContext.OnUpdate() ts[{}], M[{}], L[{}], B[{}], Q[{}]".format(
+			timestamp, self._MidPrice, self._LastPrice, self._BaseBalance, self._QuoteBalance)
+		self._logger.warning(line)
 
 	def OnStop(self, timestamp: float):
 		self._logger.warning("fengjs: MyAvdaContext.OnStop() ts[{}]".format(timestamp))
 
+	# trade event
 	def InputEventTrade(self, ev: MyMETrade):
-		self._logger.warning("fengjs: MyAvdaContext.InputEventTrade()")
+		line: str = "fengjs: MyAvdaContext.InputEventTrade(pair:{}, type:{}, tid:{}, uid:{}, ts:{}, prc:{}, amt:{})".format(
+			ev.trading_pair, ev.trade_type, ev.trade_id, ev.update_id, ev.timestamp, ev.price, ev.amount)
+		self._logger.warning(line)
 
-	def InputEventMidPrice(self, ev: MyMEMidPrice):
-		self._logger.warning("fengjs: MyAvdaContext.InputEventMidPrice()")
+	# mid price
+	def SetMidPrice(self, price: float):
+		# self._logger.warning("fengjs: MyAvdaContext.SetMidPrice({})".format(price))
+		self._MidPrice = price
 
-	def InputEventLastPrice(self, ev: MyMELastPrice):
-		self._logger.warning("fengjs: MyAvdaContext.InputEventLastPrice()")
+	# last price
+	def SetLastPrice(self, price: float):
+		# self._logger.warning("fengjs: MyAvdaContext.SetLastPrice({})".format(price))
+		self._LastPrice = price
 
-	def InputEventBalance(self, ev: MyMEBalance):
-		self._logger.warning("fengjs: MyAvdaContext.InputEventBalance()")
+	# btc
+	def SetBaseBalance(self, balance: float):
+		# self._logger.warning("fengjs: MyAvdaContext.SetBaseBalance({})".format(balance))
+		self._BaseBalance = balance
+
+	# usdt
+	def SetQuoteBalance(self, balance: float):
+		# self._logger.warning("fengjs: MyAvdaContext.SetQuoteBalance({})".format(balance))
+		self._QuoteBalance = balance
 #

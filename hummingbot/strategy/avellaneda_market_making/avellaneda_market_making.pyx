@@ -629,7 +629,15 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
             self.update_from_config_map()
 
             # added by fengjs
-            self._myHBSimulator.OnUpdate(timestamp)
+            myMidPrice: float = self.get_mid_price()
+            myLastPrice: float = self.get_last_price()
+
+            myMarket, myTradePair, myBaseAsset, myQuoteAsset = self._market_info
+            
+            myBaseBalance: float = myMarket.get_balance(myBaseAsset)
+            myQuoteBalance: float = myMarket.get_balance(myQuoteAsset)
+            # call update
+            self._myHBSimulator.OnUpdate(timestamp, myMidPrice, myLastPrice, myBaseBalance, myQuoteBalance)
             
             self.c_collect_market_variables(timestamp)
 

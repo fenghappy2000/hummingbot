@@ -17,6 +17,9 @@ from hummingbot.core.event.event_listener cimport EventListener
 from hummingbot.core.event.events import OrderBookEvent
 from hummingbot.strategy.asset_price_delegate import AssetPriceDelegate
 
+from hummingbot.client.hummingbot_application import HummingbotApplication
+# from hummingbot.strategy.avellaneda_market_making.avellaneda_market_making cimport AvellanedaMarketMakingStrategy
+
 cdef class TradesForwarder(EventListener):
     def __init__(self, indicator: 'TradingIntensityIndicator'):
         self._indicator = indicator
@@ -119,9 +122,20 @@ cdef class TradingIntensityIndicator:
     def register_trade(self, trade):
         """A helper method to be used in unit tests"""
         self.c_register_trade(trade)
+        self.my_forward_trade(trade)
 
     cdef c_register_trade(self, object trade):
         self._current_trade_sample.append(trade)
+
+    # added by fengjs
+    def my_forward_trade(self, trade):
+        app: HummingbotApplication = HummingbotApplication.main_application()
+        if app is None: return
+        if app.strategy is None: return 
+        hbSim: object = app.strategy._myHBSimulator
+        if hbSim is None: return 
+        
+        hbSim.ForwardTrade(trade.trading_pair, trade.trade_type, trade.trade_id, trade.update_id, trade.timestamp, trade.price, trade.amount)
 
     cdef c_estimate_intensity(self):
         cdef:
