@@ -37,6 +37,9 @@ def start(self):
             debug_csv_path=debug_csv_path,
             is_debug=False
         )
+
+        self.logger().error("fengjs: avmm.start()")
+
     except Exception as e:
         self.notify(str(e))
         self.logger().error("Unknown error during initialization.", exc_info=True)
