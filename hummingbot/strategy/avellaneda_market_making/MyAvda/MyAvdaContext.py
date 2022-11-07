@@ -4,6 +4,7 @@
 from .MyMarketEvent import *
 # from decimal import Decimal
 from dataclasses import dataclass
+import logging
 
 
 # avda config, => AvellanedaMarketMakingConfigMap
@@ -33,25 +34,27 @@ class MyAvdaConfig:
 # avda core interface class
 @dataclass
 class MyAvdaContext:
+	# logger
+	_logger: logging.Logger = logging.getLogger(__name__)
 
 	def OnStart(self, timestamp: float):
-		pass
+		self._logger.warning("fengjs: MyAvdaContext.OnStart() ts[{}]".format(timestamp))
 
 	def OnUpdate(self, timestamp: float):
-		pass
+		self._logger.warning("fengjs: MyAvdaContext.OnUpdate() ts[{}]".format(timestamp))
 
 	def OnStop(self, timestamp: float):
-		pass
+		self._logger.warning("fengjs: MyAvdaContext.OnStop() ts[{}]".format(timestamp))
 
 	def InputEventTrade(self, ev: MyMETrade):
-		pass
+		self._logger.warning("fengjs: MyAvdaContext.InputEventTrade()")
 
 	def InputEventMidPrice(self, ev: MyMEMidPrice):
-		pass
+		self._logger.warning("fengjs: MyAvdaContext.InputEventMidPrice()")
 
 	def InputEventLastPrice(self, ev: MyMELastPrice):
-		pass
+		self._logger.warning("fengjs: MyAvdaContext.InputEventLastPrice()")
 
 	def InputEventBalance(self, ev: MyMEBalance):
-		pass
+		self._logger.warning("fengjs: MyAvdaContext.InputEventBalance()")
 #

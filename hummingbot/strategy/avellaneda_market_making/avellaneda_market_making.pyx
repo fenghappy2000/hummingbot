@@ -50,6 +50,9 @@ from hummingbot.strategy.order_tracker cimport OrderTracker
 from hummingbot.strategy.strategy_base import StrategyBase
 from hummingbot.strategy.utils import order_age
 
+# added by fengjs
+from .MyAvda.MyHBSimulator import MyHBSimulator
+
 NaN = float("nan")
 s_decimal_zero = Decimal(0)
 s_decimal_neg_one = Decimal(-1)
@@ -128,6 +131,8 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
 
         self.get_config_map_execution_mode()
         self.get_config_map_hanging_orders()
+        
+        self._myHBSimulator = MyHBSimulator()
 
     def all_markets_ready(self):
         return all([market.ready for market in self._sb_markets])
@@ -571,6 +576,9 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
         self.update_from_config_map()
         self._last_timestamp = timestamp
 
+        # added by fengjs
+        self._myHBSimulator.OnStart(timestamp)
+        
         self._hanging_orders_tracker.register_events(self.active_markets)
 
         if self._hanging_orders_enabled:
@@ -587,6 +595,10 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
         self.c_start(clock, timestamp)
 
     cdef c_stop(self, Clock clock):
+        
+        # added by fengjs
+        self._myHBSimulator.OnStop(0)
+        
         self._hanging_orders_tracker.unregister_events(self.active_markets)
         StrategyBase.c_stop(self, clock)
 
@@ -616,6 +628,9 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
             # Updates settings from config map if changed
             self.update_from_config_map()
 
+            # added by fengjs
+            self._myHBSimulator.OnUpdate(timestamp)
+            
             self.c_collect_market_variables(timestamp)
 
             if self.c_is_algorithm_ready():
