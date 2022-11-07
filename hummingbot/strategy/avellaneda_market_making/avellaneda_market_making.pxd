@@ -3,8 +3,6 @@
 from libc.stdint cimport int64_t
 from hummingbot.strategy.__utils__.trailing_indicators.trading_intensity cimport TradingIntensityIndicator
 from hummingbot.strategy.strategy_base cimport StrategyBase
-# added by fengjs
-from .MyAvda.MyHBSimulator import MyHBSimulator
 
 cdef class AvellanedaMarketMakingStrategy(StrategyBase):
     cdef:
@@ -54,7 +52,7 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
         object _avg_vol
         TradingIntensityIndicator _trading_intensity
         bint _should_wait_order_cancel_confirmation
-        MyHBSimulator _myHBSimulator
+        object _myHBSimulator
 
     cdef object c_get_mid_price(self)
     cdef _create_proposal_based_on_order_levels(self)

@@ -41,7 +41,8 @@ class MyAvdaContext:
 		self._logger.warning("fengjs: MyAvdaContext.OnStart() ts[{}]".format(timestamp))
 
 	def OnUpdate(self, timestamp: float):
-		self._logger.warning("fengjs: MyAvdaContext.OnUpdate() ts[{}]".format(timestamp))
+		# self._logger.warning("fengjs: MyAvdaContext.OnUpdate() ts[{}]".format(timestamp))
+		pass
 
 	def OnStop(self, timestamp: float):
 		self._logger.warning("fengjs: MyAvdaContext.OnStop() ts[{}]".format(timestamp))
