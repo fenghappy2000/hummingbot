@@ -9,6 +9,8 @@ import logging
 from .TrailingIndicators.MyInstantVolatility import MyInstantVolatilityIndicator
 from .TrailingIndicators.MyTradingIntensity import MyTradingIntensityIndicator
 
+from .MyAvdaImpl import MyAvdaImpl
+
 
 # avda config, => AvellanedaMarketMakingConfigMap
 @dataclass
@@ -38,7 +40,7 @@ class MyAvdaConfig:
 @dataclass
 class MyAvdaContext:
 	# logger
-	_logger: logging.Logger = logging.getLogger(__name__)
+	_logger: logging.Logger = logging.getLogger("MyAvdaContext")
 
 	# config
 	config: MyAvdaConfig = MyAvdaConfig()
@@ -53,6 +55,9 @@ class MyAvdaContext:
 	_AvgVolatility: MyInstantVolatilityIndicator = None
 	_TradingIntensity: MyTradingIntensityIndicator = None
 
+	# implement
+	_AvdaImpl: MyAvdaImpl = None
+
 	# public funcs
 	def OnStart(self, timestamp: float):
 		self._logger.warning("fengjs: MyAvdaContext.OnStart() ts[{}]".format(timestamp))
@@ -62,13 +67,25 @@ class MyAvdaContext:
 		self._TradingIntensity = MyTradingIntensityIndicator(sampling_length=conf.trading_intensity_buffer_size)
 		self._TradingIntensity.ctx = self
 
+		self._AvdaImpl = MyAvdaImpl()
+		self._AvdaImpl.ctx = self
+
+		# call impl start
+		self._AvdaImpl.OnStart(timestamp)
+
 	def OnUpdate(self, timestamp: float):
 		line: str = "fengjs: MyAvdaContext.OnUpdate() ts[{}], M[{}], L[{}], B[{}], Q[{}]".format(
 			timestamp, self._MidPrice, self._LastPrice, self._BaseBalance, self._QuoteBalance)
 		self._logger.warning(line)
 
+		# call impl update
+		self._AvdaImpl.OnUpdate(timestamp)
+
 	def OnStop(self, timestamp: float):
 		self._logger.warning("fengjs: MyAvdaContext.OnStop() ts[{}]".format(timestamp))
+
+		# call impl stop
+		self._AvdaImpl.OnStop(timestamp)
 
 	# trade event
 	def InputEventTrade(self, ev: MyMETrade):
@@ -98,4 +115,6 @@ class MyAvdaContext:
 	def SetQuoteBalance(self, balance: float):
 		# self._logger.warning("fengjs: MyAvdaContext.SetQuoteBalance({})".format(balance))
 		self._QuoteBalance = balance
+	# private functions #################################################################################
+
 #
