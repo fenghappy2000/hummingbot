@@ -24,31 +24,31 @@ class MyRingBuffer:
     def __del__(self):
         self._buffer = None
 
-    def c_add_value(self, val: float):
+    def c_add_value(self, val: float) -> None:
         self._buffer[self._delimiter] = val
         self.c_increment_delimiter()
 
-    def c_increment_delimiter(self):
+    def c_increment_delimiter(self) -> None:
         self._delimiter = int( (self._delimiter + 1) % self._length )
         if not self._is_full and self._delimiter == 0:
             self._is_full = True
 
-    def c_is_empty(self)-> bool:
+    def c_is_empty(self) -> bool:
         return (not self._is_full) and (0==self._delimiter)
 
-    cdef double c_get_last_value(self):
+    def c_get_last_value(self) -> np.float64:
         if self.c_is_empty():
             return np.nan
         return self._buffer[self._delimiter-1]
 
-    cdef bint c_is_full(self):
+    def c_is_full(self) -> bool:
         return self._is_full
 
-    cdef double c_mean_value(self):
-        result = np.nan
+    def c_mean_value(self) -> np.float64:
+        temp_result: np.float64 = np.nan
         if self._is_full:
-            result=np.mean(self.c_get_as_numpy_array())
-        return result
+            temp_result = np.mean(self.c_get_as_numpy_array())
+        return temp_result
 
     cdef double c_variance(self):
         result = np.nan
