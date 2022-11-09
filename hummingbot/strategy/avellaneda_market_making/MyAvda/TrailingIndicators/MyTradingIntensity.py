@@ -128,10 +128,11 @@ class MyTradingIntensityIndicator:
         price_levels: List[float] = []
 
         # Calculate lambdas / trading intensities
-        lambdas = []
+        # lambdas = []
 
-        trades_consolidated = {}
-        price_levels = []
+        # trades_consolidated = {}
+        # price_levels = []
+
         for timestamp in self._trade_samples.keys():
             tick = self._trade_samples[timestamp]
             for trade in tick:
@@ -161,4 +162,5 @@ class MyTradingIntensityIndicator:
             self._kappa = Decimal(str(params[0][1]))
             self._alpha = Decimal(str(params[0][0]))
         except (RuntimeError, ValueError) as e:
+            print("c_estimate_intensity exception: [{}]".format(str(e)))
             pass
