@@ -116,5 +116,7 @@ class MyAvdaContext:
 		# self._logger.warning("fengjs: MyAvdaContext.SetQuoteBalance({})".format(balance))
 		self._QuoteBalance = balance
 	# private functions #################################################################################
+	def GetVolatility(self) -> MyInstantVolatilityIndicator: return self._AvgVolatility
 
+	def GetIntensity(self) -> MyTradingIntensityIndicator: return self._TradingIntensity
 #
