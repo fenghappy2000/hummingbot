@@ -5,22 +5,23 @@ from dataclasses import dataclass
 
 import numpy as np
 
+
 @dataclass
 class MyRingBuffer:
     _length: int = 0
     _buffer: Optional[np.ndarray] = None
     _delimiter: int = 0
     _is_full: bool = False
-    
+
     def __init__(self, _length: int):
         self._length = _length
         self._buffer = np.zeros(_length, dtype=np.float64)
         self._delimiter = 0
         self._is_full = False
 
-    #def __dealloc__(self):
+    # def __dealloc__(self):
     #    self._buffer = None
-    
+
     def __del__(self):
         self._buffer = None
 
@@ -29,12 +30,12 @@ class MyRingBuffer:
         self.c_increment_delimiter()
 
     def c_increment_delimiter(self) -> None:
-        self._delimiter = int( (self._delimiter + 1) % self._length )
+        self._delimiter = int((self._delimiter + 1) % self._length)
         if not self._is_full and self._delimiter == 0:
             self._is_full = True
 
     def c_is_empty(self) -> bool:
-        return (not self._is_full) and (0==self._delimiter)
+        return (not self._is_full) and (0 == self._delimiter)
 
     def c_get_last_value(self) -> np.float64:
         if self.c_is_empty():
@@ -50,20 +51,20 @@ class MyRingBuffer:
             temp_result = np.mean(self.c_get_as_numpy_array())
         return temp_result
 
-    cdef double c_variance(self):
+    def c_variance(self) -> np.float64:
         result = np.nan
         if self._is_full:
             result = np.var(self.c_get_as_numpy_array())
         return result
 
-    cdef double c_std_dev(self):
+    def c_std_dev(self) -> np.float64:
         result = np.nan
         if self._is_full:
             result = np.std(self.c_get_as_numpy_array())
         return result
 
-    cdef np.ndarray[np.double_t, ndim=1] c_get_as_numpy_array(self):
-        cdef np.ndarray[np.int16_t, ndim=1] indexes
+    def c_get_as_numpy_array(self) -> np.ndarray:
+        indexes: np.ndarray
 
         if not self._is_full:
             indexes = np.arange(0, stop=self._delimiter, dtype=np.int16)
@@ -72,11 +73,11 @@ class MyRingBuffer:
                                 dtype=np.int16) % self._length
         return np.asarray(self._buffer)[indexes]
 
-    def __init__(self, length):
-        self._length = length
-        self._buffer = np.zeros(length, dtype=np.double)
-        self._delimiter = 0
-        self._is_full = False
+    # def __init__(self, length):
+    #    self._length = length
+    #    self._buffer = np.zeros(length, dtype=np.double)
+    #    self._delimiter = 0
+    #    self._is_full = False
 
     def add_value(self, val):
         self.c_add_value(val)
