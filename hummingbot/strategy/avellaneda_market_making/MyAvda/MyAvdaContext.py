@@ -6,6 +6,9 @@ from .MyMarketEvent import *
 from dataclasses import dataclass
 import logging
 
+from .TrailingIndicators.MyInstantVolatility import MyInstantVolatilityIndicator
+from .TrailingIndicators.MyTradingIntensity import MyTradingIntensityIndicator
+
 
 # avda config, => AvellanedaMarketMakingConfigMap
 @dataclass
@@ -37,15 +40,27 @@ class MyAvdaContext:
 	# logger
 	_logger: logging.Logger = logging.getLogger(__name__)
 
+	# config
+	config: MyAvdaConfig = MyAvdaConfig()
+
 	# private data for market
 	_MidPrice: float = 0
 	_LastPrice: float = 0
 	_BaseBalance: float = 0
 	_QuoteBalance: float = 0
 
+	# calc props
+	_AvgVolatility: MyInstantVolatilityIndicator = None
+	_TradingIntensity: MyTradingIntensityIndicator = None
+
 	# public funcs
 	def OnStart(self, timestamp: float):
 		self._logger.warning("fengjs: MyAvdaContext.OnStart() ts[{}]".format(timestamp))
+		conf: MyAvdaConfig = self.config
+
+		self._AvgVolatility = MyInstantVolatilityIndicator(sampling_length=conf.volatility_buffer_size)
+		self._TradingIntensity = MyTradingIntensityIndicator(sampling_length=conf.trading_intensity_buffer_size)
+		self._TradingIntensity.ctx = self
 
 	def OnUpdate(self, timestamp: float):
 		line: str = "fengjs: MyAvdaContext.OnUpdate() ts[{}], M[{}], L[{}], B[{}], Q[{}]".format(
@@ -60,8 +75,11 @@ class MyAvdaContext:
 		line: str = "fengjs: MyAvdaContext.InputEventTrade(pair:{}, type:{}, tid:{}, uid:{}, ts:{}, prc:{}, amt:{})".format(
 			ev.trading_pair, ev.trade_type, ev.trade_id, ev.update_id, ev.timestamp, ev.price, ev.amount)
 		self._logger.warning(line)
+		self._TradingIntensity.register_trade(ev)
 
 	# mid price
+	def GetMidPrice(self): return self._MidPrice
+
 	def SetMidPrice(self, price: float):
 		# self._logger.warning("fengjs: MyAvdaContext.SetMidPrice({})".format(price))
 		self._MidPrice = price
