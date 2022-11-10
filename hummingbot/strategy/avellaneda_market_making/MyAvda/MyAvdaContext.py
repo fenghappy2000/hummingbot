@@ -107,14 +107,19 @@ class MyAvdaContext:
 		self._LastPrice = price
 
 	# btc
+	def GetBaseBalance(self): return self._BaseBalance
+
 	def SetBaseBalance(self, balance: float):
 		# self._logger.warning("fengjs: MyAvdaContext.SetBaseBalance({})".format(balance))
 		self._BaseBalance = balance
 
 	# usdt
+	def GetQuoteBalance(self): return self._QuoteBalance
+
 	def SetQuoteBalance(self, balance: float):
 		# self._logger.warning("fengjs: MyAvdaContext.SetQuoteBalance({})".format(balance))
 		self._QuoteBalance = balance
+
 	# private functions #################################################################################
 	def GetVolatility(self) -> MyInstantVolatilityIndicator: return self._AvgVolatility
 
