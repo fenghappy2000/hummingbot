@@ -44,7 +44,7 @@ class MyAvdaImpl:
 
 	# public funcs
 	def OnStart(self, timestamp: float):
-		pass
+		self._last_timestamp = timestamp
 
 	def OnUpdate(self, timestamp: float):
 		self._current_timestamp = timestamp
