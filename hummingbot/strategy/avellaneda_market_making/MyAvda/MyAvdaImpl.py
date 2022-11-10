@@ -253,6 +253,8 @@ class MyAvdaImpl:
 		# end func
 
 	def c_apply_order_price_modifiers(self, proposal: MyProposal) -> None:
+		if proposal is None:
+			return
 		conf: MyAvdaConfig = self.ctx.config
 		if conf.order_optimization_enabled:
 			pass  # not support
@@ -272,6 +274,8 @@ class MyAvdaImpl:
 
 	# notify and reset timers if created
 	def c_execute_orders_proposal(self, proposal: MyProposal) -> None:
+		if proposal is None:
+			return
 		orders_created: bool = False
 		if orders_created:
 			self.c_set_timers()
