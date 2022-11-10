@@ -2,11 +2,12 @@
 
 from .MyAvdaContext import MyAvdaContext
 from .MyMarketEvent import MyProposal
+from .MyMarketEvent import MyPriceSize
 from .TrailingIndicators import MyInstantVolatility
 from .TrailingIndicators import MyTradingIntensity
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Tuple
+from typing import Tuple, List
 import logging
 
 
@@ -123,9 +124,11 @@ class MyAvdaImpl:
 	def c_cancel_active_orders_on_max_age_limit(self):
 		pass
 
-	def c_cancel_active_orders(self):
+	def c_cancel_active_orders(self, proposal: MyProposal):
 		if self._cancel_timestamp > self._current_timestamp:
 			return
+		if proposal is not None:
+			pass
 		self.c_set_timers()
 
 	def c_calculate_reservation_price_and_optimal_spread(self):
@@ -165,6 +168,15 @@ class MyAvdaImpl:
 
 		self._optimal_ask = max(self._reservation_price + self._optimal_spread / 2, min_limit_ask)
 		self._optimal_bid = min(self._reservation_price - self._optimal_spread / 2, max_limit_bid)
+
+	def c_create_base_proposal(self) -> MyProposal:
+		buyOrder: MyPriceSize = MyPriceSize(self._optimal_bid, Decimal(self.ctx.config.order_amount))
+		sellOrder: MyPriceSize = MyPriceSize(self._optimal_ask, Decimal(self.ctx.config.order_amount))
+
+		listBuy: List[MyPriceSize] = [buyOrder, ]
+		listSell: List[MyPriceSize] = [sellOrder, ]
+		proposal: MyProposal = MyProposal(listBuy, listSell)
+		return proposal
 
 	# translated ends funs ################################################################
 
@@ -207,8 +219,16 @@ class MyAvdaImpl:
 			# 2. Check if calculated prices make sense
 			if self._optimal_bid > 0 and self._optimal_ask > 0:
 				# 3. Create base order proposals
-				pass
-		#
+				proposal = self.c_create_base_proposal()
+				# 4. Apply functions that modify orders amount
+				self.c_apply_order_amount_eta_transformation(proposal)
+				# 5. Apply functions that modify orders price
+				self.c_apply_order_price_modifiers(proposal)
+				# 6. Apply budget constraint, i.e. can't buy/sell more than what you have.
+				self.c_apply_budget_constraint(proposal)
+
+				self.c_cancel_active_orders(proposal)
+		# for warning
 		test: bool = False
 		if test:
 			print(timestamp)
