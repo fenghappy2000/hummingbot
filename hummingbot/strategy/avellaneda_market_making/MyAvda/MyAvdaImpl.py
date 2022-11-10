@@ -329,11 +329,13 @@ class MyAvdaImpl:
 				self.c_cancel_active_orders(proposal)
 
 		# end Trading if
+
 		if self.c_to_create_orders(proposal):
 			self.c_execute_orders_proposal(proposal)
+
 		# for warning
 		test: bool = False
 		if test:
 			print(timestamp)
-
+		# end func
 #
