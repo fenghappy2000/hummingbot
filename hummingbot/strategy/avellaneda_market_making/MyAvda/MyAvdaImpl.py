@@ -1,17 +1,19 @@
 
 
 from .MyAvdaContext import MyAvdaContext
+from .MyAvdaContext import MyAvdaConfig
 from .MyMarketEvent import MyProposal
 from .MyMarketEvent import MyPriceSize
 from .TrailingIndicators import MyInstantVolatility
 from .TrailingIndicators import MyTradingIntensity
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 import logging
 
 
 NaN = float("nan")
+s_decimal_0 = Decimal(0)
 s_decimal_zero = Decimal(0)
 s_decimal_neg_one = Decimal(-1)
 s_decimal_one = Decimal(1)
@@ -52,6 +54,46 @@ class MyAvdaImpl:
 		pass
 
 	# translated tool funs ################################################################
+	def c_quantize_order_amount(self, trading_pair: str, amount: Decimal, price: Decimal = s_decimal_0) -> Decimal:
+		"""
+		Applies the trading rules to calculate the correct order amount for the market
+		:param trading_pair: the token pair for which the order will be created
+		:param amount: the intended amount for the order
+		:param price: the intended price for the order
+		:return: the quantized order amount after applying the trading rules
+		"""
+		# trading_rule = self._trading_rules[trading_pair]
+		# quantized_amount: Decimal = super().quantize_order_amount(trading_pair, amount)
+
+		if trading_pair != "BTC-USDT":
+			raise Exception("Only support trading_pair=BTC-USDT")
+
+		# BTC/USDT MinBTC =(0.00001)
+		min_order_size: Decimal = Decimal(0.00001)
+		# BTC/USDT MinUSDT=10
+		min_notional_size: Decimal = Decimal(10)
+
+		midPrice: Decimal = Decimal(self.ctx.GetMidPrice())
+
+		quantized_amount: Decimal = amount
+
+		# Check against min_order_size and min_notional_size. If not passing either check, return 0.
+		if quantized_amount < min_order_size:
+			return s_decimal_0
+
+		if price == s_decimal_0:
+			# current_price: Decimal = self.get_price(trading_pair, False)
+			current_price: Decimal = midPrice
+			notional_size = current_price * quantized_amount
+		else:
+			notional_size = price * quantized_amount
+
+		# Add 1% as a safety factor in case the prices changed while making the order.
+		# if notional_size < trading_rule.min_notional_size * Decimal("1.01"):
+		if notional_size < min_notional_size * Decimal("1.01"):
+			return s_decimal_0
+		return quantized_amount
+
 	def c_is_algorithm_ready(self) -> bool:
 		volFull: bool = self.ctx.GetVolatility().is_sampling_buffer_full
 		intFull: bool = self.ctx.GetIntensity().is_sampling_buffer_full
@@ -103,6 +145,7 @@ class MyAvdaImpl:
 		# Target base asset amount
 		target_inventory_amount: float = target_inventory_value / price
 		# return market.c_quantize_order_amount(trading_pair, Decimal(str(target_inventory_amount)))
+		target_inventory_amount = float(self.c_quantize_order_amount(self.ctx.config.trading_pair, Decimal(str(target_inventory_amount))))
 		return target_inventory_amount
 
 	def c_calculate_inventory(self) -> float:
@@ -121,17 +164,17 @@ class MyAvdaImpl:
 		return inventory_value_base
 
 	# Cancels active non-hanging orders if they are older than max age limit
-	def c_cancel_active_orders_on_max_age_limit(self):
+	def c_cancel_active_orders_on_max_age_limit(self) -> None:
 		pass
 
-	def c_cancel_active_orders(self, proposal: MyProposal):
+	def c_cancel_active_orders(self, proposal: MyProposal) -> None:
 		if self._cancel_timestamp > self._current_timestamp:
 			return
 		if proposal is not None:
 			pass
 		self.c_set_timers()
 
-	def c_calculate_reservation_price_and_optimal_spread(self):
+	def c_calculate_reservation_price_and_optimal_spread(self) -> None:
 		# Current mid price
 		price: Decimal = Decimal(self.ctx.GetMidPrice())
 
@@ -170,13 +213,68 @@ class MyAvdaImpl:
 		self._optimal_bid = min(self._reservation_price - self._optimal_spread / 2, max_limit_bid)
 
 	def c_create_base_proposal(self) -> MyProposal:
-		buyOrder: MyPriceSize = MyPriceSize(self._optimal_bid, Decimal(self.ctx.config.order_amount))
-		sellOrder: MyPriceSize = MyPriceSize(self._optimal_ask, Decimal(self.ctx.config.order_amount))
+		buySize: Decimal = self.c_quantize_order_amount(self.ctx.config.trading_pair, Decimal(self.ctx.config.order_amount))
+		sellSize: Decimal = buySize
+		buyOrder: MyPriceSize = MyPriceSize(self._optimal_bid, buySize)
+		sellOrder: MyPriceSize = MyPriceSize(self._optimal_ask, sellSize)
 
 		listBuy: List[MyPriceSize] = [buyOrder, ]
 		listSell: List[MyPriceSize] = [sellOrder, ]
 		proposal: MyProposal = MyProposal(listBuy, listSell)
 		return proposal
+
+	def c_apply_order_amount_eta_transformation(self, proposal: MyProposal) -> None:
+		inventory: Decimal = Decimal(str(self.c_calculate_inventory()))
+		if inventory == 0:
+			return
+
+		base_asset_amount: Decimal = Decimal(self.ctx.GetBaseBalance())
+		q_target: Decimal = Decimal(str(self.c_calculate_target_inventory()))
+		q: Decimal = (base_asset_amount - q_target) / inventory
+
+		tradingPair: str = self.ctx.config.trading_pair
+		eta: Decimal = Decimal(self.ctx.config.order_amount_shape_factor)
+		# buys
+		if len(proposal.buys) > 0:
+			if q > 0:
+				for i, proposed in enumerate(proposal.buys):
+					buySize: Decimal = proposal.buys[i].size * Decimal.exp(-eta * q)
+					proposal.buys[i].size = self.c_quantize_order_amount(tradingPair, buySize)
+				# end for
+				proposal.buys = [o for o in proposal.buys if o.size > 0]
+		# sells
+		if len(proposal.sells) > 0:
+			if q < 0:
+				for i, proposed in enumerate(proposal.sells):
+					sellSize: Decimal = proposal.sells[i].size * Decimal.exp(eta * q)
+					proposal.sells[i].size = self.c_quantize_order_amount(tradingPair, sellSize)
+				# end for
+				proposal.sells = [o for o in proposal.sells if o.size > 0]
+		# end func
+
+	def c_apply_order_price_modifiers(self, proposal: MyProposal) -> None:
+		conf: MyAvdaConfig = self.ctx.config
+		if conf.order_optimization_enabled:
+			pass  # not support
+		if conf.add_transaction_costs:
+			pass  # not support
+
+	def c_apply_budget_constraint(self, proposal: MyProposal) -> None:
+		pass  # not support
+
+	# test create order ok
+	def c_to_create_orders(self, proposal: Optional[MyProposal]) -> bool:
+		if proposal is None:
+			return False
+
+		timeOK: bool = self._create_timestamp < self._current_timestamp
+		return timeOK
+
+	# notify and reset timers if created
+	def c_execute_orders_proposal(self, proposal: MyProposal) -> None:
+		orders_created: bool = False
+		if orders_created:
+			self.c_set_timers()
 
 	# translated ends funs ################################################################
 
@@ -212,7 +310,8 @@ class MyAvdaImpl:
 
 	# process
 	def process_tick(self, timestamp: float):
-		proposal: MyProposal
+		proposal: Optional[MyProposal] = None
+		# Trading is allowed
 		if self._create_timestamp <= self._current_timestamp:
 			# 1. Calculate reservation price and optimal spread from gamma, alpha, kappa and volatility
 			self.c_calculate_reservation_price_and_optimal_spread()
@@ -228,6 +327,10 @@ class MyAvdaImpl:
 				self.c_apply_budget_constraint(proposal)
 
 				self.c_cancel_active_orders(proposal)
+
+		# end Trading if
+		if self.c_to_create_orders(proposal):
+			self.c_execute_orders_proposal(proposal)
 		# for warning
 		test: bool = False
 		if test:

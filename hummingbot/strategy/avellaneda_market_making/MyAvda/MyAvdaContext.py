@@ -16,6 +16,7 @@ from .MyAvdaImpl import MyAvdaImpl
 @dataclass
 class MyAvdaConfig:
 	# execution_timeframe_mode = InfiniteModel
+	trading_pair: str = "BTC-USDT"
 	order_amount: float = 0.002  # BTC(0.002)/0
 	order_optimization_enabled: bool = True  # True/True
 	risk_factor: float = 0.8  # 0.8/1.0
