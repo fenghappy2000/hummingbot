@@ -577,7 +577,7 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
         self._last_timestamp = timestamp
 
         # added by fengjs
-        self._myHBSimulator.OnStart(timestamp)
+        self._myHBSimulator.OnStart(timestamp, self.market_info.order_book)
         
         self._hanging_orders_tracker.register_events(self.active_markets)
 
