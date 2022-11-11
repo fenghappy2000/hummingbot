@@ -630,7 +630,8 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
 
             # added by fengjs
             myMidPrice: float = self.get_mid_price()
-            myLastPrice: float = self.get_last_price()
+            # myLastPrice: float = self.get_last_price()
+            myLastPrice: float = 0
 
             myMarket, myTradePair, myBaseAsset, myQuoteAsset = self._market_info
             
