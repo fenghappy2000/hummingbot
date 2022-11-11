@@ -302,13 +302,17 @@ class MyAvdaImpl:
 
 	# called every tick(default 1 second)
 	def c_tick(self, timestamp: float):
+		run0: str = "0"
+		run1: str = "0"
 		try:
 			# collect market info
 			self.c_collect_market_variables(timestamp)
 
 			algReady: bool = self.c_is_algorithm_ready()
 			if algReady:
+				run0 = "1"
 				if self._create_timestamp <= self._current_timestamp:
+					run1 = "1"
 					# Measure order book liquidity
 					self.c_measure_order_book_liquidity()
 
@@ -317,11 +321,14 @@ class MyAvdaImpl:
 
 				self.process_tick(timestamp)
 			else:
+				run0 = "2"
 				algChanged: bool = self.c_is_algorithm_changed()
 				if algChanged:
+					run1 = "2"
 					self._ticks_to_be_ready -= 1
 		finally:
 			self._last_timestamp = timestamp
+			self._logger.warning("fengjs: c_tick: ts[{}], r0[{}], r1[{}]".format(timestamp, run0, run1))
 
 	# process
 	def process_tick(self, timestamp: float):
