@@ -20,6 +20,8 @@ class MyTradingIntensityIndicator:
 
     def __init__(self, sampling_length: int = 30):
         from ..MyAvdaContext import MyAvdaContext
+        import logging
+        logging.getLogger().warning("fengjs: MyTradingIntensity: s[{}]".format(sampling_length))
         self.ctx: Optional[MyAvdaContext] = None
 
         self._alpha = 0

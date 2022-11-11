@@ -328,7 +328,7 @@ class MyAvdaImpl:
 					self._ticks_to_be_ready -= 1
 		finally:
 			self._last_timestamp = timestamp
-			self._logger.warning("fengjs: c_tick: ts[{}], r0[{}], r1[{}]".format(timestamp, run0, run1))
+			self._logger.warning("fengjs: my.c_tick: ts[{}], r0[{}], r1[{}]".format(timestamp, run0, run1))
 
 	# process
 	def process_tick(self, timestamp: float):

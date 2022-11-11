@@ -6,6 +6,8 @@ import numpy as np
 
 class MyInstantVolatilityIndicator(MyBaseTrailingIndicator):
     def __init__(self, sampling_length: int = 30, processing_length: int = 15):
+        import logging
+        logging.getLogger().warning("fengjs: MyInstantVolatility: s[{}], p[{}]".format(sampling_length, processing_length))
         super().__init__(sampling_length, processing_length)
 
     def _indicator_calculation(self) -> float:

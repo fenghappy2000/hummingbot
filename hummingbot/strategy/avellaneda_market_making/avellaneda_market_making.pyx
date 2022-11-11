@@ -611,6 +611,8 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
                                            (self._logging_options & self.OPTION_LOG_STATUS_REPORT))
             object proposal
 
+        run0: str = "0"
+        run1: str = "0"
         try:
             if not self._all_markets_ready:
                 self._all_markets_ready = all([mkt.ready for mkt in self._sb_markets])
@@ -643,7 +645,9 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
             self.c_collect_market_variables(timestamp)
 
             if self.c_is_algorithm_ready():
+                run0 = "1"
                 if self._create_timestamp <= self._current_timestamp:
+                    run1 = "1"
                     # Measure order book liquidity
                     self.c_measure_order_book_liquidity()
 
@@ -656,8 +660,10 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
                 self._execution_state.process_tick(timestamp, self)
 
             else:
+                run0 = "2"
                 # Only if snapshots are different - for trading intensity - a market order happened
                 if self.c_is_algorithm_changed():
+                    run1 = "2"
                     self._ticks_to_be_ready -= 1
                     if self._ticks_to_be_ready % 5 == 0:
                         self.logger().info(f"Calculating volatility, estimating order book liquidity ... {self._ticks_to_be_ready} ticks to fill buffers")
@@ -665,6 +671,7 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
                     self.logger().info(f"Calculating volatility, estimating order book liquidity ... no trades tick")
         finally:
             self._last_timestamp = timestamp
+            self._logger.warning("fengjs: as.c_tick: ts[{}], r0[{}], r1[{}]".format(timestamp, run0, run1))
 
     def process_tick(self, timestamp: float):
         proposal = None
