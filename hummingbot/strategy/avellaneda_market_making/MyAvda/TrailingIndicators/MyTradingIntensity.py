@@ -60,6 +60,12 @@ class MyTradingIntensityIndicator:
     def sampling_length(self, new_len: int):
         self._sampling_length = new_len
 
+    def GetSamplingInfo(self) -> str:
+        xdel: int = len(self._trade_samples.keys())
+        xlen: int = self._sampling_length
+        full: bool = xdel == xlen
+        return "del:{},len:{},ful:{}".format(xdel, xlen, full)
+
     @property
     def last_quotes(self) -> list:
         """A helper method to be used in unit tests"""

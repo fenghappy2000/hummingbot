@@ -66,7 +66,6 @@ class MyBaseTrailingIndicator(ABC):
         self._processing_buffer.length = value
 
     def GetSamplingInfo(self) -> str:
-        info: str = ""
         xdel: int = self._sampling_buffer.delimiter
         xlen: int = self._sampling_buffer.length
         full: bool = self._sampling_buffer.is_full
