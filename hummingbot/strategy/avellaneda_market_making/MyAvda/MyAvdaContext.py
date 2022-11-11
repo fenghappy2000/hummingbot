@@ -94,9 +94,11 @@ class MyAvdaContext:
 
 	# trade event
 	def InputEventTrade(self, ev: MyMETrade):
-		line: str = "fengjs: MyAvdaContext.InputEventTrade(pair:{}, type:{}, tid:{}, uid:{}, ts:{}, prc:{}, amt:{})".format(
-			ev.trading_pair, ev.trade_type, ev.trade_id, ev.update_id, ev.timestamp, ev.price, ev.amount)
-		self._logger.warning(line)
+		logIt: bool = False
+		if logIt:
+			line: str = "fengjs: MyAvdaContext.InputEventTrade(pair:{}, type:{}, tid:{}, uid:{}, ts:{}, prc:{}, amt:{})".format(
+				ev.trading_pair, ev.trade_type, ev.trade_id, ev.update_id, ev.timestamp, ev.price, ev.amount)
+			self._logger.warning(line)
 		self._TradingIntensity.register_trade(ev)
 
 	# mid price
