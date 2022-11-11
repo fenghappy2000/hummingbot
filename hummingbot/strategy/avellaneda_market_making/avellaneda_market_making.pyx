@@ -671,7 +671,7 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
                     self.logger().info(f"Calculating volatility, estimating order book liquidity ... no trades tick")
         finally:
             self._last_timestamp = timestamp
-            self._logger.warning("fengjs: as.c_tick: ts[{}], r0[{}], r1[{}]".format(timestamp, run0, run1))
+            self.logger().warning("fengjs: as.c_tick: ts[{}], r0[{}], r1[{}]".format(timestamp, run0, run1))
 
     def process_tick(self, timestamp: float):
         proposal = None
