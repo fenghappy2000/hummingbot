@@ -22,7 +22,7 @@ s_decimal_one = Decimal(1)
 @dataclass
 class MyAvdaImpl:
 	# logger
-	_logger: logging.Logger = logging.getLogger("MyAvdaImpl")
+	_logger: logging.Logger = logging.getLogger()
 
 	# ctx: MyAvdaContext = None
 

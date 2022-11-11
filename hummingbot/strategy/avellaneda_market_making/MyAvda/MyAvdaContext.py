@@ -41,7 +41,7 @@ class MyAvdaConfig:
 @dataclass
 class MyAvdaContext:
 	# logger
-	_logger: logging.Logger = logging.getLogger("MyAvdaContext")
+	_logger: logging.Logger = logging.getLogger()
 
 	# config
 	config: MyAvdaConfig = MyAvdaConfig()
@@ -77,9 +77,11 @@ class MyAvdaContext:
 		self._AvdaImpl.OnStart(timestamp)
 
 	def OnUpdate(self, timestamp: float):
-		line: str = "fengjs: MyAvdaContext.OnUpdate() ts[{}], M[{}], L[{}], B[{}], Q[{}]".format(
-			timestamp, self._MidPrice, self._LastPrice, self._BaseBalance, self._QuoteBalance)
-		self._logger.warning(line)
+		logIt: bool = False
+		if logIt:
+			line: str = "fengjs: MyAvdaContext.OnUpdate() ts[{}], M[{}], L[{}], B[{}], Q[{}]".format(
+				timestamp, self._MidPrice, self._LastPrice, self._BaseBalance, self._QuoteBalance)
+			self._logger.warning(line)
 
 		# call impl update
 		self._AvdaImpl.OnUpdate(timestamp)
