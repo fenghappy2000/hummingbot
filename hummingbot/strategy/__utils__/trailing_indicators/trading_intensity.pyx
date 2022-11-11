@@ -128,10 +128,10 @@ cdef class TradingIntensityIndicator:
     def register_trade(self, trade):
         """A helper method to be used in unit tests"""
         self.c_register_trade(trade)
-        self.my_forward_trade(trade)
 
     cdef c_register_trade(self, object trade):
         self._current_trade_sample.append(trade)
+        self.my_forward_trade(trade)
 
     # added by fengjs
     def my_forward_trade(self, trade):
