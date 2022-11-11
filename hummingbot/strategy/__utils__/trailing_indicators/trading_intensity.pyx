@@ -131,7 +131,7 @@ cdef class TradingIntensityIndicator:
 
     cdef c_register_trade(self, object trade):
         self._current_trade_sample.append(trade)
-        self.my_forward_trade(trade)
+        #self.my_forward_trade(trade)
 
     # added by fengjs
     def my_forward_trade(self, trade):

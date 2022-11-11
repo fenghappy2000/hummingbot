@@ -5,14 +5,19 @@ from .MyAvdaContext import MyAvdaContext
 from .MyMarketEvent import MyMETrade
 from dataclasses import dataclass
 
+from hummingbot.core.event.event_listener import EventListener
+from hummingbot.core.data_type.order_book import OrderBook
+from hummingbot.core.event.events import OrderBookEvent
+
 
 # simulator in humbot frwk, for data check with avstg
 @dataclass
-class MyHBSimulator:
+class MyHBSimulator(EventListener):
     _AvdaCtx: MyAvdaContext = MyAvdaContext()
 
-    def OnStart(self, ts: float):
+    def OnStart(self, ts: float, order_book: OrderBook):
         self._AvdaCtx.OnStart(ts)
+        order_book.add_listener(OrderBookEvent.TradeEvent, self)
 
     def OnUpdate(self, ts: float, midPrice: float, lastPrice: float, baseBalance: float, quoteBalance: float):
 
@@ -40,4 +45,8 @@ class MyHBSimulator:
         ev.amount = float(amount)
 
         self._AvdaCtx.InputEventTrade(ev)
+
+    # recv trade event
+    def __call__(self, trade):
+        self.ForwardTrade(trade.trading_pair, trade.trade_type, trade.trade_id, trade.update_id, trade.timestamp, trade.price, trade.amount)
 #
