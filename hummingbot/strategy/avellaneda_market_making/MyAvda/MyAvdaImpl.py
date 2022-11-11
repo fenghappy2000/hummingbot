@@ -212,6 +212,10 @@ class MyAvdaImpl:
 		self._optimal_ask = max(self._reservation_price + self._optimal_spread / 2, min_limit_ask)
 		self._optimal_bid = min(self._reservation_price - self._optimal_spread / 2, max_limit_bid)
 
+		self._logger.info(f"q={q:.4f} | vol={vol:.10f} | alpha={self._alpha:.10f} | kappa={self._kappa:.10f}")
+		self._logger.info(f"mid_price={price:.10f} | reservation_price={self._reservation_price:.10f} | optimal_spread={self._optimal_spread:.10f}")
+		self._logger.info(f"optimal_bid={(price - (self._reservation_price - self._optimal_spread / 2)) / price * 100:.4f}% | optimal_ask={((self._reservation_price + self._optimal_spread / 2) - price) / price * 100:.4f}%")
+
 	def c_create_base_proposal(self) -> MyProposal:
 		buySize: Decimal = self.c_quantize_order_amount(self.ctx.config.trading_pair, Decimal(self.ctx.config.order_amount))
 		sellSize: Decimal = buySize
