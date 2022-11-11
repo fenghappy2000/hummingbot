@@ -71,3 +71,11 @@ class BaseTrailingIndicator(ABC):
     @processing_length.setter
     def processing_length(self, value):
         self._processing_buffer.length = value
+
+    def GetSamplingInfo(self) -> str:
+        info: str = ""
+        xdel: int = self._sampling_buffer.delimiter
+        xlen: int = self._sampling_buffer.length
+        full: bool = self._sampling_buffer.is_full
+        return "del:{},len:{},ful:{}".format(xdel, xlen, full)
+#

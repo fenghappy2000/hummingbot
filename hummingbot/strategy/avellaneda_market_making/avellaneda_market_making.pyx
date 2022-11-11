@@ -613,6 +613,8 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
 
         run0: str = "0"
         run1: str = "0"
+        infV: str = ""
+        infI: str = ""
         try:
             if not self._all_markets_ready:
                 self._all_markets_ready = all([mkt.ready for mkt in self._sb_markets])
@@ -644,6 +646,9 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
             
             self.c_collect_market_variables(timestamp)
 
+            infV = self._avg_vol.GetSamplingInfo()
+            infI = self._trading_intensity.GetSamplingInfo()
+
             if self.c_is_algorithm_ready():
                 run0 = "1"
                 if self._create_timestamp <= self._current_timestamp:
@@ -671,7 +676,7 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
                     self.logger().info(f"Calculating volatility, estimating order book liquidity ... no trades tick")
         finally:
             self._last_timestamp = timestamp
-            self.logger().warning("fengjs: as.c_tick: ts[{}], r0[{}], r1[{}]".format(timestamp, run0, run1))
+            self.logger().warning("fengjs: as.c_tick: ts[{}], r0[{}], r1[{}], V[{}], I[{}]".format(timestamp, run0, run1, infV, infI))
 
     def process_tick(self, timestamp: float):
         proposal = None

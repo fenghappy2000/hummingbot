@@ -304,9 +304,14 @@ class MyAvdaImpl:
 	def c_tick(self, timestamp: float):
 		run0: str = "0"
 		run1: str = "0"
+		infV: str = ""
+		infI: str = ""
 		try:
 			# collect market info
 			self.c_collect_market_variables(timestamp)
+
+			infV = self.ctx.GetVolatility().GetSamplingInfo()
+			infI = self.ctx.GetIntensity().GetSamplingInfo()
 
 			algReady: bool = self.c_is_algorithm_ready()
 			if algReady:
@@ -328,7 +333,7 @@ class MyAvdaImpl:
 					self._ticks_to_be_ready -= 1
 		finally:
 			self._last_timestamp = timestamp
-			self._logger.warning("fengjs: my.c_tick: ts[{}], r0[{}], r1[{}]".format(timestamp, run0, run1))
+			self._logger.warning("fengjs: my.c_tick: ts[{}], r0[{}], r1[{}], V[{}], I[{}]".format(timestamp, run0, run1, infV, infI))
 
 	# process
 	def process_tick(self, timestamp: float):

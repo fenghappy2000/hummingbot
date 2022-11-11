@@ -105,6 +105,10 @@ class MyRingBuffer:
         return self.c_variance()
 
     @property
+    def delimiter(self) -> int:
+        return self._delimiter
+
+    @property
     def length(self) -> int:
         return self._length
 
