@@ -682,7 +682,7 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
                 # 6. Apply budget constraint, i.e. can't buy/sell more than what you have.
                 # self.c_apply_budget_constraint(proposal)
 
-                self.c_cancel_active_orders(proposal)
+                # self.c_cancel_active_orders(proposal)
 
         if self.c_to_create_orders(proposal) and False:
             self.c_execute_orders_proposal(proposal)

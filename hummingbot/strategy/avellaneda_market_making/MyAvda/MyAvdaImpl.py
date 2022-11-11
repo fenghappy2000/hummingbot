@@ -330,15 +330,15 @@ class MyAvdaImpl:
 				# 4. Apply functions that modify orders amount
 				self.c_apply_order_amount_eta_transformation(proposal)
 				# 5. Apply functions that modify orders price
-				self.c_apply_order_price_modifiers(proposal)
+				# self.c_apply_order_price_modifiers(proposal)
 				# 6. Apply budget constraint, i.e. can't buy/sell more than what you have.
-				self.c_apply_budget_constraint(proposal)
+				# self.c_apply_budget_constraint(proposal)
 
-				self.c_cancel_active_orders(proposal)
+				# self.c_cancel_active_orders(proposal)
 
 		# end Trading if
 
-		if self.c_to_create_orders(proposal):
+		if self.c_to_create_orders(proposal) and False:
 			self.c_execute_orders_proposal(proposal)
 
 		# for warning
