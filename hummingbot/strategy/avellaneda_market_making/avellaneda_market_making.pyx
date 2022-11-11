@@ -577,7 +577,7 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
         self._last_timestamp = timestamp
 
         # added by fengjs
-        self._myHBSimulator.OnStart(timestamp, self.market_info.order_book)
+        # self._myHBSimulator.OnStart(timestamp, self.market_info.order_book)
         
         self._hanging_orders_tracker.register_events(self.active_markets)
 
@@ -633,6 +633,10 @@ cdef class AvellanedaMarketMakingStrategy(StrategyBase):
             self.update_from_config_map()
 
             # added by fengjs
+            if self.market_info.market.ready:
+                if self._myHBSimulator.GetIsStart() == 0:
+                    self._myHBSimulator.OnStart(timestamp, self.market_info.order_book)
+
             myMidPrice: float = self.get_mid_price()
             # myLastPrice: float = self.get_last_price()
             myLastPrice: float = 0

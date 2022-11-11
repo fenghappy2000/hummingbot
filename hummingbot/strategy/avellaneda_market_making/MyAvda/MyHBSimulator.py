@@ -15,9 +15,16 @@ from hummingbot.core.event.events import OrderBookEvent
 class MyHBSimulator(EventListener):
     _AvdaCtx: MyAvdaContext = MyAvdaContext()
 
+    IsStart: int = 0
+
+    def GetIsStart(self) -> int:
+        return self.IsStart
+
     def OnStart(self, ts: float, order_book: OrderBook):
-        self._AvdaCtx.OnStart(ts)
-        order_book.add_listener(OrderBookEvent.TradeEvent, self)
+        if self.IsStart == 0:
+            self.IsStart = 1
+            self._AvdaCtx.OnStart(ts)
+            order_book.add_listener(OrderBookEvent.TradeEvent, self)
 
     def OnUpdate(self, ts: float, midPrice: float, lastPrice: float, baseBalance: float, quoteBalance: float):
 
