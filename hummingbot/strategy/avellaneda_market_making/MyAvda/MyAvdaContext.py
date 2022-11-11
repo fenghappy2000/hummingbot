@@ -61,6 +61,8 @@ class MyAvdaContext:
 
 	# public funcs
 	def OnStart(self, timestamp: float):
+		self._logger.setLevel(logging.DEBUG)
+
 		self._logger.warning("fengjs: MyAvdaContext.OnStart() ts[{}]".format(timestamp))
 		conf: MyAvdaConfig = self.config
 

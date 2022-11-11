@@ -45,6 +45,7 @@ class MyAvdaImpl:
 	def __init__(self):
 		from .MyAvdaContext import MyAvdaContext
 		self.ctx: Optional[MyAvdaContext] = None
+		self._logger.setLevel(logging.DEBUG)
 
 	# public funcs
 	def OnStart(self, timestamp: float):
