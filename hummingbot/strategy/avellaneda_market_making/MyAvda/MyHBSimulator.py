@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from hummingbot.core.event.event_listener import EventListener
 from hummingbot.core.data_type.order_book import OrderBook
 from hummingbot.core.event.events import OrderBookEvent
-
+import logging
 
 # simulator in humbot frwk, for data check with avstg
 @dataclass
@@ -55,5 +55,6 @@ class MyHBSimulator(EventListener):
 
     # recv trade event
     def __call__(self, trade):
-        self.ForwardTrade(trade.trading_pair, trade.trade_type, trade.trade_id, trade.update_id, trade.timestamp, trade.price, trade.amount)
+        # logging.getLogger().warning("fengjs: tradeEvent: trade[{}], dir[{}]".format(trade, dir(trade)))
+        self.ForwardTrade(trade.trading_pair, trade.type, "0", "0", trade.timestamp, trade.price, trade.amount)
 #
