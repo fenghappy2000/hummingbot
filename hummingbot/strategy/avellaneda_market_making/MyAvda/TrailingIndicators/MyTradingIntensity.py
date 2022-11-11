@@ -5,20 +5,23 @@
 
 import warnings
 from decimal import Decimal
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Optional
 
 import numpy as np
 from scipy.optimize import curve_fit
 from scipy.optimize import OptimizeWarning
 
-from ..MyAvdaContext import MyAvdaContext
+# from ..MyAvdaContext import MyAvdaContext
 
 
 class MyTradingIntensityIndicator:
 
-    ctx: MyAvdaContext = None
+    # ctx: MyAvdaContext = None
 
     def __init__(self, sampling_length: int = 30):
+        from ..MyAvdaContext import MyAvdaContext
+        self.ctx: Optional[MyAvdaContext] = None
+
         self._alpha = 0
         self._kappa = 0
         self._trade_samples = {}

@@ -17,7 +17,7 @@ from hummingbot.core.event.event_listener cimport EventListener
 from hummingbot.core.event.events import OrderBookEvent
 from hummingbot.strategy.asset_price_delegate import AssetPriceDelegate
 
-from hummingbot.client.hummingbot_application import HummingbotApplication
+# from hummingbot.client.hummingbot_application import HummingbotApplication
 # from hummingbot.strategy.avellaneda_market_making.avellaneda_market_making cimport AvellanedaMarketMakingStrategy
 
 cdef class TradesForwarder(EventListener):
@@ -129,6 +129,7 @@ cdef class TradingIntensityIndicator:
 
     # added by fengjs
     def my_forward_trade(self, trade):
+        from hummingbot.client.hummingbot_application import HummingbotApplication
         app: HummingbotApplication = HummingbotApplication.main_application()
         if app is None: return
         if app.strategy is None: return 

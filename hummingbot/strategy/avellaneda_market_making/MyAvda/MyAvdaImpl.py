@@ -1,7 +1,7 @@
 
 
-from .MyAvdaContext import MyAvdaContext
-from .MyAvdaContext import MyAvdaConfig
+# from .MyAvdaContext import MyAvdaContext
+# from .MyAvdaContext import MyAvdaConfig
 from .MyMarketEvent import MyProposal
 from .MyMarketEvent import MyPriceSize
 from .TrailingIndicators import MyInstantVolatility
@@ -24,7 +24,7 @@ class MyAvdaImpl:
 	# logger
 	_logger: logging.Logger = logging.getLogger("MyAvdaImpl")
 
-	ctx: MyAvdaContext = None
+	# ctx: MyAvdaContext = None
 
 	_current_timestamp: float = 0  # TimeIterator.current_timestamp
 
@@ -41,6 +41,10 @@ class MyAvdaImpl:
 	_optimal_spread: Decimal = s_decimal_zero
 	_optimal_ask: Decimal = s_decimal_zero
 	_optimal_bid: Decimal = s_decimal_zero
+
+	def __init__(self):
+		from .MyAvdaContext import MyAvdaContext
+		self.ctx: Optional[MyAvdaContext] = None
 
 	# public funcs
 	def OnStart(self, timestamp: float):
@@ -259,6 +263,8 @@ class MyAvdaImpl:
 	def c_apply_order_price_modifiers(self, proposal: MyProposal) -> None:
 		if proposal is None:
 			return
+
+		from .MyAvdaContext import MyAvdaConfig
 		conf: MyAvdaConfig = self.ctx.config
 		if conf.order_optimization_enabled:
 			pass  # not support
