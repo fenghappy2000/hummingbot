@@ -42,6 +42,10 @@ class MyAvdaImpl:
 	_optimal_ask: Decimal = s_decimal_zero
 	_optimal_bid: Decimal = s_decimal_zero
 
+	_debug_log: bool = True
+
+	_debug_alg: bool = True
+
 	def __init__(self):
 		from .MyAvdaContext import MyAvdaContext
 		self.ctx: Optional[MyAvdaContext] = None
@@ -217,9 +221,10 @@ class MyAvdaImpl:
 		self._optimal_ask = max(self._reservation_price + self._optimal_spread / 2, min_limit_ask)
 		self._optimal_bid = min(self._reservation_price - self._optimal_spread / 2, max_limit_bid)
 
-		self._logger.info(f"q={q:.4f} | vol={vol:.10f} | alpha={self._alpha:.10f} | kappa={self._kappa:.10f}")
-		self._logger.info(f"mid_price={price:.10f} | reservation_price={self._reservation_price:.10f} | optimal_spread={self._optimal_spread:.10f}")
-		self._logger.info(f"optimal_bid={(price - (self._reservation_price - self._optimal_spread / 2)) / price * 100:.4f}% | optimal_ask={((self._reservation_price + self._optimal_spread / 2) - price) / price * 100:.4f}%")
+		if self._debug_alg:
+			self._logger.info(f"q={q:.4f} | vol={vol:.10f} | alpha={self._alpha:.10f} | kappa={self._kappa:.10f}")
+			self._logger.info(f"mid_price={price:.10f} | reservation_price={self._reservation_price:.10f} | optimal_spread={self._optimal_spread:.10f}")
+			self._logger.info(f"optimal_bid={(price - (self._reservation_price - self._optimal_spread / 2)) / price * 100:.4f}% | optimal_ask={((self._reservation_price + self._optimal_spread / 2) - price) / price * 100:.4f}%")
 
 	def c_create_base_proposal(self) -> MyProposal:
 		buySize: Decimal = self.c_quantize_order_amount(self.ctx.config.trading_pair, Decimal(self.ctx.config.order_amount))
@@ -333,7 +338,8 @@ class MyAvdaImpl:
 					self._ticks_to_be_ready -= 1
 		finally:
 			self._last_timestamp = timestamp
-			self._logger.warning("fengjs: my.c_tick: ts[{}], r0[{}], r1[{}], V[{}], I[{}]".format(timestamp, run0, run1, infV, infI))
+			if self._debug_log:
+				self._logger.warning("fengjs: my.c_tick: ts[{}], r0[{}], r1[{}], V[{}], I[{}]".format(timestamp, run0, run1, infV, infI))
 
 	# process
 	def process_tick(self, timestamp: float):
@@ -354,6 +360,8 @@ class MyAvdaImpl:
 				# self.c_apply_budget_constraint(proposal)
 
 				# self.c_cancel_active_orders(proposal)
+
+				self.ctx.SetMyProposal(proposal)
 
 		# end Trading if
 

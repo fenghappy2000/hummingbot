@@ -9,7 +9,8 @@ from hummingbot.core.event.event_listener import EventListener
 from hummingbot.core.data_type.order_book import OrderBook
 from hummingbot.core.event.events import OrderBookEvent
 from hummingbot.core.data_type.common import TradeType
-#import logging
+# import logging
+
 
 # simulator in humbot frwk, for data check with avstg
 @dataclass
@@ -41,6 +42,7 @@ class MyHBSimulator(EventListener):
     def OnStop(self, ts: float):
         self._AvdaCtx.OnStop(ts)
 
+    # 3. forward trade event to context
     def ForwardTrade(self, trading_pair: str, trade_type: int, trade_id: str, update_id: str, timestamp: float, price: float, amount: float):
         ev: MyMETrade = MyMETrade()
 
@@ -54,7 +56,7 @@ class MyHBSimulator(EventListener):
 
         self._AvdaCtx.InputEventTrade(ev)
 
-    # recv trade event
+    # recv trade event from humbot framework
     def __call__(self, trade):
         # logging.getLogger().warning("fengjs: tradeEvent: trade[{}], dir[{}]".format(trade, dir(trade)))
         trade_type: int = 1

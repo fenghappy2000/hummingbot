@@ -4,6 +4,7 @@
 from .MyMarketEvent import *
 # from decimal import Decimal
 from dataclasses import dataclass
+from typing import Optional
 import logging
 
 from .TrailingIndicators.MyInstantVolatility import MyInstantVolatilityIndicator
@@ -59,8 +60,10 @@ class MyAvdaContext:
 	# implement
 	_AvdaImpl: MyAvdaImpl = None
 
+	_MyProposal: Optional[MyProposal] = None
+
 	# public funcs
-	def OnStart(self, timestamp: float):
+	def OnStart(self, timestamp: float) -> None:
 		self._logger.setLevel(logging.DEBUG)
 
 		self._logger.warning("fengjs: MyAvdaContext.OnStart() ts[{}]".format(timestamp))
@@ -76,7 +79,7 @@ class MyAvdaContext:
 		# call impl start
 		self._AvdaImpl.OnStart(timestamp)
 
-	def OnUpdate(self, timestamp: float):
+	def OnUpdate(self, timestamp: float) -> None:
 		logIt: bool = False
 		if logIt:
 			line: str = "fengjs: MyAvdaContext.OnUpdate() ts[{}], M[{}], L[{}], B[{}], Q[{}]".format(
@@ -84,22 +87,35 @@ class MyAvdaContext:
 			self._logger.warning(line)
 
 		# call impl update
+		self._MyProposal = None
 		self._AvdaImpl.OnUpdate(timestamp)
 
-	def OnStop(self, timestamp: float):
+	def OnStop(self, timestamp: float) -> None:
 		self._logger.warning("fengjs: MyAvdaContext.OnStop() ts[{}]".format(timestamp))
 
 		# call impl stop
 		self._AvdaImpl.OnStop(timestamp)
 
 	# trade event
-	def InputEventTrade(self, ev: MyMETrade):
+	def InputEventTrade(self, ev: MyMETrade) -> None:
 		logIt: bool = False
 		if logIt:
 			line: str = "fengjs: MyAvdaContext.InputEventTrade(pair:{}, type:{}, tid:{}, uid:{}, ts:{}, prc:{}, amt:{})".format(
 				ev.trading_pair, ev.trade_type, ev.trade_id, ev.update_id, ev.timestamp, ev.price, ev.amount)
 			self._logger.warning(line)
 		self._TradingIntensity.register_trade(ev)
+
+	# get algorithm ready
+	def IsAlgorithmReady(self) -> bool:
+		ready: bool = self._AvdaImpl.c_is_algorithm_ready()
+		return ready
+
+	# get result proposal, if not ready return None
+	def GetMyProposal(self) -> Optional[MyProposal]:
+		return self._MyProposal
+
+	def SetMyProposal(self, myprop: Optional[MyProposal]) -> None:
+		self._MyProposal = myprop
 
 	# mid price
 	def GetMidPrice(self): return self._MidPrice
